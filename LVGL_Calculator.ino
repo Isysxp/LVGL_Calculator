@@ -21,13 +21,14 @@
 
 static float rslt = 0.0;
 static int inptr = 0;
+static char strslt[32];
 extern float addsub();
 extern char input[101];
 
 void action_button_clicked(lv_event_t *e) {
   const char *label_text;
   float rslt;
-  char strslt[32];
+
 
   lv_event_code_t code = lv_event_get_code(e);    // Get the event code eg LV_EVENT_PRESSED
   lv_obj_t *obj = lv_event_get_target(e);         // Get a reference to the widget generating this event
@@ -36,10 +37,18 @@ void action_button_clicked(lv_event_t *e) {
     label_text = lv_btnmatrix_get_btn_text(obj, id);    // Get the text label inside the specific widget.
     if (strstr(input,"="))
       input[0]=0;
-    if (*label_text == 'C') {
-      lv_textarea_set_text(objects.textarea1, "");      // Directly reference a specific widget (textarea1) see screens.h
-      input[0]=0;
-      return;
+    switch (*label_text) {
+    case 'C':
+        lv_textarea_set_text(objects.textarea1, "");      // Directly reference a specific widget (textarea1) see screens.h
+        input[0] = strslt[0] = 0;                         // Clear input and result text
+        return;
+    case '+':
+    case '-':
+    case '/':
+    case '*':
+        if (*strslt)                                     // If there is a result, set it as first operand
+            strcpy(input, strslt);
+        break;
     }
     strcat(input,label_text);
     if (*label_text == '=') {
@@ -79,7 +88,7 @@ void setup() {
   // LV_DISP_ROT_NONE, LV_DISP_ROT_90, LV_DISP_ROT_180, LV_DISP_ROT_270
   //disp_drv.sw_rotate = 1;
   //disp_drv.rotated = LV_DISP_ROT_NONE;
-  input[0] = 0;
+  input[0] = strslt[0] = 0;                 // Clear input and result text
   ui_init();
 }
 
