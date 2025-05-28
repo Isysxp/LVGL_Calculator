@@ -41,7 +41,7 @@ void action_button_clicked(lv_event_t* e) {
 		switch (*label_text) {
 		case 'C':
 			lv_textarea_set_text(objects.textarea1, "");      // Directly reference a specific widget (textarea1) see screens.h
-			input[0] = strslt[0] = 0;                         // Clear input and result text
+			*input = *strslt = 0;                            // Clear input and result text
 			return;
 		case '+':
 		case '-':
@@ -53,10 +53,14 @@ void action_button_clicked(lv_event_t* e) {
 			}
 			break;
 		case '=':
+			if (*input == '=')
+				return;
 			rslt = addsub();
 			sprintf(strslt, "%.7g", rslt);
 			strcat(input, strslt);
 			break;
+		default:
+			*strslt = 0;
 		}
 		lv_textarea_set_text(objects.textarea1, (const char*)&input);
 	}
