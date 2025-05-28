@@ -29,15 +29,15 @@ void action_button_clicked(lv_event_t *e) {
   float rslt;
   char strslt[32];
 
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t *obj = lv_event_get_target(e);
+  lv_event_code_t code = lv_event_get_code(e);    // Get the event code eg LV_EVENT_PRESSED
+  lv_obj_t *obj = lv_event_get_target(e);         // Get a reference to the widget generating this event
   if (code == LV_EVENT_PRESSED) {
-    uint32_t id = lv_btnmatrix_get_selected_btn(obj);
-    label_text = lv_btnmatrix_get_btn_text(obj, id);
+    uint32_t id = lv_btnmatrix_get_selected_btn(obj);   // Get the widget (keypad) id number 
+    label_text = lv_btnmatrix_get_btn_text(obj, id);    // Get the text label inside the specific widget.
     if (strstr(input,"="))
       input[0]=0;
     if (*label_text == 'C') {
-      lv_textarea_set_text(objects.textarea1, "");
+      lv_textarea_set_text(objects.textarea1, "");      // Directly reference a specific widget (textarea1) see screens.h
       input[0]=0;
       return;
     }
@@ -58,7 +58,7 @@ int count = 0;
 void setup() {
   Serial.begin(115200);
 
-  tft.begin();
+  tft.begin();                  // Graphics init code for the ST7262+CHG422 touch screen. (see displaystuff.h as well)
 
   lv_init();
   lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 10);
