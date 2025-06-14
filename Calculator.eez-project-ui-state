@@ -125,7 +125,6 @@
                   "type": "tabset",
                   "id": "#88546e77-5b71-4c42-92b6-02d634ca9b4c",
                   "weight": 1,
-                  "selected": 2,
                   "enableClose": false,
                   "children": [
                     {
@@ -197,6 +196,18 @@
               "children": [
                 {
                   "type": "tab",
+                  "id": "#af78ddb0-f5c2-4d5a-b6da-800f6b631ba6",
+                  "name": "Settings",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[Calculator.eez-project]:/settings",
+                    "subObjectPath": "[Calculator.eez-project]:/settings",
+                    "permanent": false
+                  },
+                  "icon": "material:settings"
+                },
+                {
+                  "type": "tab",
                   "id": "#9d1cc029-b403-4f78-a61f-ee2119f2da09",
                   "name": "Main",
                   "component": "editor",
@@ -206,7 +217,8 @@
                   },
                   "icon": "svg:page"
                 }
-              ]
+              ],
+              "active": true
             },
             {
               "type": "row",
@@ -226,8 +238,7 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
@@ -1013,9 +1024,7 @@
       "selection": {
         "0": {
           "0": {},
-          "1": {
-            "$selected": true
-          }
+          "1": {}
         }
       },
       "transform": {
