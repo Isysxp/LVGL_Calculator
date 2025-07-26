@@ -2,6 +2,7 @@
   "navigation": {
     "selectedUserPageObject": "[Calculator.eez-project]:/userPages/0",
     "selectedActionObject": "[Calculator.eez-project]:/actions/0",
+    "selectedBitmapObject": "[Calculator.eez-project]:/bitmaps/1",
     "subnavigationSelectedItems": {
       "variables-tab/sub-navigation/selected-item": "Global"
     }
@@ -24,6 +25,7 @@
           },
           {
             "type": "border",
+            "selected": 2,
             "size": 240,
             "location": "right",
             "children": [
@@ -191,6 +193,7 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 65,
+              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -228,7 +231,7 @@
                 {
                   "type": "tabset",
                   "id": "#e887d2a2-6f39-49db-83ab-bcf45ac154eb",
-                  "weight": 2,
+                  "weight": 2.588495575221239,
                   "children": [
                     {
                       "type": "tab",
@@ -243,7 +246,7 @@
                 {
                   "type": "tabset",
                   "id": "#6099ad79-fc6e-459f-9025-f4c2d448a3c3",
-                  "weight": 1,
+                  "weight": 0.41150442477876104,
                   "children": [
                     {
                       "type": "tab",
@@ -559,7 +562,8 @@
                       "component": "bitmaps",
                       "enableClose": false
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -1030,7 +1034,7 @@
       "transform": {
         "translate": {
           "x": -600,
-          "y": -360
+          "y": -493.33332519531245
         },
         "scale": 1.5
       },
@@ -1059,9 +1063,8 @@
   "lvglExpandedPropertiesGroup": [
     "POSITION AND SIZE",
     "LAYOUT",
-    "BACKGROUND",
     "TEXT",
-    "BORDER"
+    "IMAGE"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,

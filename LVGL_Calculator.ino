@@ -18,49 +18,58 @@
 #include "src/ui/ui.h"
 #include <stdio.h>
 #include <math.h>
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include <WiFiClient.h>
 
 static float rslt = 0.0;
 static int inptr = 0;
 static char strslt[32];
 extern float addsub();
 extern char input[101];
+int packetSize;
+int packetBuffer[2];
+WiFiUDP udp;
+
+#define INFRA_SSID "BT-Q6CTR8"
+#define INFRA_PSWD "c531a3d358"
 
 void action_button_clicked(lv_event_t* e) {
 	const char* label_text;
 	float rslt;
 
 
-	lv_event_code_t code = lv_event_get_code(e);    // Get the event code eg LV_EVENT_PRESSED
-	lv_obj_t* obj = lv_event_get_target(e);         // Get a reference to the widget generating this event
+	lv_event_code_t code = lv_event_get_code(e);  // Get the event code eg LV_EVENT_PRESSED
+	lv_obj_t* obj = lv_event_get_target(e);       // Get a reference to the widget generating this event
 	if (code == LV_EVENT_PRESSED) {
-		uint32_t id = lv_btnmatrix_get_selected_btn(obj);   // Get the widget (keypad) id number 
-		label_text = lv_btnmatrix_get_btn_text(obj, id);    // Get the text label inside the specific widget.
+		uint32_t id = lv_btnmatrix_get_selected_btn(obj);  // Get the widget (keypad) id number
+		label_text = lv_btnmatrix_get_btn_text(obj, id);   // Get the text label inside the specific widget.
 		if (strstr(input, "="))
 			input[0] = 0;
 		strcat(input, label_text);
 		switch (*label_text) {
-		case 'C':
-			lv_textarea_set_text(objects.textarea1, "");      // Directly reference a specific widget (textarea1) see screens.h
-			*input = *strslt = 0;                            // Clear input and result text
-			return;
-		case '+':
-		case '-':
-		case '/':
-		case '*':
-			if (*strslt) {                                    // If there is a result, set it as first operand
-				strcpy(input, strslt);
-				strcat(input, label_text);
-			}
-			break;
-		case '=':
-			if (*input == '=')
+			case 'C':
+				lv_textarea_set_text(objects.textarea1, "");  // Directly reference a specific widget (textarea1) see screens.h
+				*input = *strslt = 0;                         // Clear input and result text
 				return;
-			rslt = addsub();
-			sprintf(strslt, "%.7g", rslt);
-			strcat(input, strslt);
-			break;
-		default:
-			*strslt = 0;
+			case '+':
+			case '-':
+			case '/':
+			case '*':
+				if (*strslt) {  // If there is a result, set it as first operand
+					strcpy(input, strslt);
+					strcat(input, label_text);
+				}
+				break;
+			case '=':
+				if (*input == '=')
+					return;
+				rslt = addsub();
+				sprintf(strslt, "%.7g", rslt);
+				strcat(input, strslt);
+				break;
+			default:
+				*strslt = 0;
 		}
 		lv_textarea_set_text(objects.textarea1, (const char*)&input);
 	}
@@ -73,7 +82,7 @@ int count = 0;
 void setup() {
 	Serial.begin(115200);
 
-	tft.begin();                  // Graphics init code for the ST7262+CHG422 touch screen. (see displaystuff.h as well)
+	tft.begin();  // Graphics init code for the ST7262+CHG422 touch screen. (see displaystuff.h as well)
 
 	lv_init();
 	lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 10);
@@ -94,12 +103,35 @@ void setup() {
 	// LV_DISP_ROT_NONE, LV_DISP_ROT_90, LV_DISP_ROT_180, LV_DISP_ROT_270
 	//disp_drv.sw_rotate = 1;
 	//disp_drv.rotated = LV_DISP_ROT_NONE;
-	input[0] = strslt[0] = 0;                 // Clear input and result text
+	input[0] = strslt[0] = 0;  // Clear input and result text
 	ui_init();
+	setup_cursor();
+
+	WiFi.disconnect(true);
+	delay(1000);
+	WiFi.useStaticBuffers(true);
+	WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
+	WiFi.setHostname("calculator");
+	WiFi.mode(WIFI_STA);
+	WiFi.begin(INFRA_SSID, INFRA_PSWD);
+	delay(1000);
+	WiFi.setTxPower(WIFI_POWER_8_5dBm);
+	while (WiFi.status() != WL_CONNECTED) {
+		delay(100);
+	}
+	IPAddress ip = WiFi.localIP();
+	Serial.print("IP:");
+	Serial.print(ip);
+	Serial.println("/Calculator");
+	udp.begin(1000);
+	Serial.println("Running....");
 }
 
 void loop() {
 	lv_timer_handler();
 	ui_tick();
 	delay(5);
+	packetSize = udp.parsePacket();
+	if (packetSize)
+		udp.read((char*)packetBuffer, packetSize);
 }

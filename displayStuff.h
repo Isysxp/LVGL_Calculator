@@ -2,6 +2,7 @@
 #define _DISPLAY_STUFF_H
 
 #include "src/ui/ui.h"
+#include "src/ui/images.h"
 #define LGFX_USE_V1       // set to use new version of library
 #include <LovyanGFX.hpp>  // main library
 #include <lgfx/v1/platforms/esp32s3/Panel_RGB.hpp>
@@ -9,8 +10,8 @@
 #include "Wire.h"
 #include "driver/i2c.h"
 
-#define TFT_HOR_RES   800
-#define TFT_VER_RES   480
+#define TFT_HOR_RES 800
+#define TFT_VER_RES 480
 
 #define TOUCH_SDA 8
 #define TOUCH_SCL 9
@@ -40,11 +41,11 @@ public:
       auto cfg = _bus_instance.config();
       cfg.panel = &_panel_instance;
 
-      cfg.pin_d0 = 14;   // B0
-      cfg.pin_d1 = 38;   // B1
-      cfg.pin_d2 = 18;   // B2
-      cfg.pin_d3 = 17;   // B3
-      cfg.pin_d4 = 10;   // B4
+      cfg.pin_d0 = 14;  // B0
+      cfg.pin_d1 = 38;  // B1
+      cfg.pin_d2 = 18;  // B2
+      cfg.pin_d3 = 17;  // B3
+      cfg.pin_d4 = 10;  // B4
 
       cfg.pin_d5 = 39;   // G0
       cfg.pin_d6 = 0;    // G1
@@ -53,8 +54,8 @@ public:
       cfg.pin_d9 = 47;   // G4
       cfg.pin_d10 = 21;  // G5
 
-      cfg.pin_d11 = 1;  // R0
-      cfg.pin_d12 = 2;  // R1
+      cfg.pin_d11 = 1;   // R0
+      cfg.pin_d12 = 2;   // R1
       cfg.pin_d13 = 42;  // R2
       cfg.pin_d14 = 41;  // R3
       cfg.pin_d15 = 40;  // R4
@@ -93,9 +94,9 @@ public:
     {
       auto cfg = _touch_instance.config();
       cfg.x_min = 0;
-      cfg.x_max = TFT_HOR_RES-1;
+      cfg.x_max = TFT_HOR_RES - 1;
       cfg.y_min = 0;
-      cfg.y_max = TFT_VER_RES-1;
+      cfg.y_max = TFT_VER_RES - 1;
       cfg.pin_int = TOUCH_INT;
       cfg.pin_rst = TOUCH_RST;
       cfg.bus_shared = false;
@@ -124,6 +125,43 @@ LGFX tft;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * 10];
 
+#include "lvgl.h"
+
+void create_mouse_pointer(lv_indev_t *indev) {
+  // Create a cursor object (e.g., a small circle or an image)
+  lv_obj_t *ccursor = lv_img_create(lv_scr_act());  // Use an image for the cursor
+  lv_img_set_src(ccursor, LV_SYMBOL_GPS);           // Set the cursor image
+  lv_indev_set_cursor(indev, ccursor);              // Attach the cursor to the input device
+}
+
+lv_indev_drv_t indev_drv;
+extern int packetBuffer[2];
+
+void mouse_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
+  data->point.x = abs(packetBuffer[0]);
+  data->point.y = packetBuffer[1];
+  if (packetBuffer[0] < 0)
+    data->state = LV_INDEV_STATE_PR;
+  else
+    data->state = LV_INDEV_STATE_REL;
+}
+
+
+
+void setup_cursor() {
+
+  // Create an input device for the mouse
+
+  lv_indev_drv_init(&indev_drv);
+  indev_drv.type = LV_INDEV_TYPE_POINTER;  // Set input type to pointer
+  indev_drv.read_cb = mouse_read_cb;       // Define your mouse read callback
+  lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv);
+
+  // Create and attach the mouse pointer
+  create_mouse_pointer(mouse_indev);
+}
+
+
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   uint32_t w = (area->x2 - area->x1 + 1);
   uint32_t h = (area->y2 - area->y1 + 1);
@@ -147,5 +185,4 @@ void my_touch_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 }
 
 
-#endif	// _DISPLAY_STUFF_H
-
+#endif  // _DISPLAY_STUFF_H
