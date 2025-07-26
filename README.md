@@ -1,6 +1,6 @@
 # LVGL_Calculator<br>
 
-This is a simple calculator for the Arduino environment runnung on a Waveshare ESP32S3 board. https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3<br>
+This is a simple calculator for the Arduino environment running on a Waveshare ESP32S3 board. https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3<br>
 The graphics are created using the LVGL/LovyanGFX libraries.these should be imported into the Arduino environment ... see app for versions.<br>
 It includes the config files for the EEZ Studio graphics designer system which I think is rather cool. https://www.envox.eu/studio/studio-introduction/<br>
 The app consists of three components. The app, a simple expression evaluator which respects operator precedence, the src/ui dircetory which contain the<br>
@@ -11,6 +11,17 @@ directory and copy it back to the Arduino libraries folder as needed. The most l
 you have selected a font in EEZ Studio for which the setting in lv_conf.h is 0.<br>
 It is worth reading the EEZ Studio section on events and how to manage them. This app is a reasonable example of this in the the action_button_clicked(...) function is called asynchronously<br>
 from the LVGL idle loop in the loop() function. The function calls in this app show how to find the event source widget and its properties or directly reference a specific widget.<br>
-I hope this app gives some insight into what is quite a daunting process of creating event driven graphics apps for the ESP32.<br>
+I hope this app gives some insight into what is quite a daunting process of creating and event driven graphics apps for the ESP32.<br>
 <br>
 Ian Schofield May 2025<br>
+<br>
+This update adds a mouse cursor to the app. There are a number of methods for sending data to an LVGL application. In this case, I have selected the UDP option.
+This is very similar to sending data via a serial port but does not require a formal connection process. Ideally, one would connect a BLE mouse but
+this can get rather involved and this example is by far the simplest method. In essence, the app creates a UDP listener on port 1000 and any UDP source
+may send an 8 byte message formatted as 2 32bit integers, the X and Y coordinates for the cursor and a mouse click indicator when the X coordinate is negative.
+An example VB.Net app is included in the Mouse_Xmit directory.<br>
+<br>
+Ian Schofield July 2025<br>
+<br>
+
+
