@@ -20,6 +20,13 @@ This is very similar to sending data via a serial port but does not require a fo
 this can get rather involved and this example is by far the simplest method. In essence, the app creates a UDP listener on port 1000 and any UDP source
 may send an 8 byte message formatted as 2 32bit integers, the X and Y coordinates for the cursor and a mouse click indicator when the X coordinate is negative.
 An example VB.Net app is included in the Mouse_Xmit directory.<br>
+In addition, this update also allows for the use of a USB mouse using the EspUsbHost library:https://github.com/tanakamasayuki/EspUsbHost<br>
+To plug in a USB mouse firstly, USB CDC on boot should be disabled. Upload and USB mode should be set to TinyUSB.<br>
+The library does not parse the USB mouse descriptors so you may need to edit the file C:\Users\<username>\Documents\Arduino\libraries\EspUsbHostLVGL-master\src\EspUsbHost.cpp<br>
+This file copies the values from the USB data buffer into a report buffer which is used to determine the button state and the mouse movement.<br>
+I have set things up according to the 'standard' format of a mouse message. But, your mouse might not work correctly.<br>
+Try changing the data buffer offsets at lines 578-580 in the file as above.
+
 <br>
 Ian Schofield July 2025<br>
 <br>
