@@ -18,9 +18,11 @@
 #include "src/ui/ui.h"
 #include <stdio.h>
 #include <math.h>
+#include <AsyncUDP.h>
+#include <Esp.h>
 #include <WiFi.h>
-#include <WiFiUdp.h>
-#include <WiFiClient.h>
+#include "EspUsbHost.h"
+#include "MouseLVGL.h"
 
 static float rslt = 0.0;
 static int inptr = 0;
@@ -29,10 +31,10 @@ extern float addsub();
 extern char input[101];
 int packetSize;
 int packetBuffer[2];
-WiFiUDP udp;
+AsyncUDP udp;
 
-#define INFRA_SSID "BT-Q6CTR8"
-#define INFRA_PSWD "c531a3d358"
+#define INFRA_SSID "<YOUR SSID>"
+#define INFRA_PSWD "<YOUR PASSWORD>"
 
 void action_button_clicked(lv_event_t* e) {
 	const char* label_text;
@@ -75,6 +77,9 @@ void action_button_clicked(lv_event_t* e) {
 	}
 }
 
+void onPacket(AsyncUDPPacket &packet) {
+	memcpy(packetBuffer,packet.data(),packet.length());
+}
 
 lv_disp_t* disp;
 int count = 0;
@@ -123,7 +128,10 @@ void setup() {
 	Serial.print("IP:");
 	Serial.print(ip);
 	Serial.println("/Calculator");
-	udp.begin(1000);
+	udp.onPacket(onPacket);
+	udp.listen(1000);
+	Mouse.begin();
+	Mouse.useLVGL();
 	Serial.println("Running....");
 }
 
@@ -131,7 +139,5 @@ void loop() {
 	lv_timer_handler();
 	ui_tick();
 	delay(5);
-	packetSize = udp.parsePacket();
-	if (packetSize)
-		udp.read((char*)packetBuffer, packetSize);
+	Mouse.loop();
 }
