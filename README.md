@@ -22,6 +22,7 @@ may send an 8 byte message formatted as 2 32bit integers, the X and Y coordinate
 An example VB.Net app is included in the Mouse_Xmit directory.<br>
 In addition, this update also allows for the use of a USB mouse using the EspUsbHost library:https://github.com/tanakamasayuki/EspUsbHost<br>
 To plug in a USB mouse firstly, USB CDC on boot should be disabled. Upload and USB mode should be set to TinyUSB.<br>
+Plug the mouse into the port marked USB ... you may need an OTG adapter like this one: https://www.amazon.co.uk/dp/B0872VN39L?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1<br>
 The library does not parse the USB mouse descriptors so you may need to edit the file C:\Users\<username>\Documents\Arduino\libraries\EspUsbHostLVGL-master\src\EspUsbHost.cpp<br>
 This file copies the values from the USB data buffer into a report buffer which is used to determine the button state and the mouse movement.<br>
 I have set things up according to the 'standard' format of a mouse message. But, your mouse might not work correctly.<br>
