@@ -20,6 +20,15 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="Eval.ino" />
+    <ClCompile Include="lv_conf.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\ui\actions.h">
       <Filter>Header Files</Filter>
     </ClCompile>
@@ -52,6 +61,12 @@
     </ClCompile>
     <ClCompile Include="src\ui\ui.h">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ui_image_cursor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ui_image_mouse.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\vars.h">
       <Filter>Header Files</Filter>

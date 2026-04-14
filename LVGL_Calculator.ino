@@ -10,6 +10,7 @@
 	- LovyanGFX by lovyan03 1.2.7
 *******************************************/
 
+#include <lvgl.h>
 #include "displayStuff.h"
 #include <string.h>
 #include "src/ui/vars.h"
@@ -18,11 +19,15 @@
 #include "src/ui/ui.h"
 #include <stdio.h>
 #include <math.h>
-#include <AsyncUDP.h>
 #include <Esp.h>
 #include <WiFi.h>
 #include "EspUsbHost.h"
 #include "MouseLVGL.h"
+#include "RemoteDisplay.h"
+extern RemoteDisplay remoteDisplay;
+
+#define INFRA_SSID "BT-Q6CTR8"
+#define INFRA_PSWD "c531a3d358"
 
 static float rslt = 0.0;
 static int inptr = 0;
@@ -31,10 +36,6 @@ extern float addsub();
 extern char input[101];
 int packetSize;
 int packetBuffer[2];
-AsyncUDP udp;
-
-#define INFRA_SSID "<YOUR SSID>"
-#define INFRA_PSWD "<YOUR PASSWORD>"
 
 void action_button_clicked(lv_event_t* e) {
 	const char* label_text;
@@ -77,10 +78,6 @@ void action_button_clicked(lv_event_t* e) {
 	}
 }
 
-void onPacket(AsyncUDPPacket &packet) {
-	memcpy(packetBuffer,packet.data(),packet.length());
-}
-
 lv_disp_t* disp;
 int count = 0;
 
@@ -98,12 +95,11 @@ void setup() {
 	disp_drv.flush_cb = my_disp_flush;
 	disp_drv.draw_buf = &draw_buf;
 	disp = lv_disp_drv_register(&disp_drv);
-	static lv_indev_drv_t indev_drv;
-	lv_indev_drv_init(&indev_drv);
-	indev_drv.type = LV_INDEV_TYPE_POINTER;
-	indev_drv.read_cb = my_touch_read;
-	lv_indev_drv_register(&indev_drv);
-
+	static lv_indev_drv_t touch_drv;
+	lv_indev_drv_init(&touch_drv);
+	touch_drv.type = LV_INDEV_TYPE_POINTER;
+	touch_drv.read_cb = my_touch_read;
+	lv_indev_drv_register(&touch_drv);
 	// Set display rotation to any of
 	// LV_DISP_ROT_NONE, LV_DISP_ROT_90, LV_DISP_ROT_180, LV_DISP_ROT_270
 	//disp_drv.sw_rotate = 1;
@@ -127,9 +123,12 @@ void setup() {
 	IPAddress ip = WiFi.localIP();
 	Serial.print("IP:");
 	Serial.print(ip);
+	remoteDisplay.registerTouchCallback(remoteTouchCallback);
+	remoteDisplay.registerRefreshCallback(refreshDisplayCallback);
+	remoteDisplay.init(800, 480, 2400);
 	Serial.println("/Calculator");
-	udp.onPacket(onPacket);
-	udp.listen(1000);
+	//udp.onPacket(onPacket);
+	//udp.listen(1000);
 	Mouse.begin();
 	Mouse.useLVGL();
 	Serial.println("Running....");
@@ -140,4 +139,5 @@ void loop() {
 	ui_tick();
 	delay(5);
 	Mouse.loop();
+	remoteDisplay.pollRemoteCommand();
 }

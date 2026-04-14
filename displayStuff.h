@@ -3,13 +3,16 @@
 
 #include "src/ui/ui.h"
 #include "src/ui/images.h"
-#define LGFX_USE_V1       // set to use new version of library
+#define LGFX_USE_V1  // set to use new version of library
+#define USE_ETHERNET
 #include <LovyanGFX.hpp>  // main library
 #include <lgfx/v1/platforms/esp32s3/Panel_RGB.hpp>
 #include <lgfx/v1/platforms/esp32s3/Bus_RGB.hpp>
 #include "Wire.h"
 #include "driver/i2c.h"
+#include "RemoteDisplay.h"
 
+RemoteDisplay remoteDisplay;
 #define TFT_HOR_RES 800
 #define TFT_VER_RES 480
 
@@ -113,7 +116,6 @@ public:
   }
 };
 
-
 #include <lvgl.h>
 
 
@@ -124,39 +126,53 @@ LGFX tft;
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * 10];
-
+extern const lv_img_dsc_t mouse_cursor_icon;
 #include "lvgl.h"
 
 void create_mouse_pointer(lv_indev_t *indev) {
   // Create a cursor object (e.g., a small circle or an image)
   lv_obj_t *ccursor = lv_img_create(lv_scr_act());  // Use an image for the cursor
-  lv_img_set_src(ccursor, LV_SYMBOL_GPS);           // Set the cursor image
+  lv_img_set_src(ccursor, &mouse_cursor_icon);      // Set the cursor image
   lv_indev_set_cursor(indev, ccursor);              // Attach the cursor to the input device
 }
 
 lv_indev_drv_t indev_drv;
-extern int packetBuffer[2];
+static int MouseX = 0, MouseY = 0, Btn = 1;
 
 void mouse_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
-  data->point.x = abs(packetBuffer[0]);
-  data->point.y = packetBuffer[1];
-  if (packetBuffer[0] < 0)
+  data->point.x = MouseX;
+  data->point.y = MouseY;
+  if (!Btn)
     data->state = LV_INDEV_STATE_PR;
   else
     data->state = LV_INDEV_STATE_REL;
 }
 
 
+void remoteTouchCallback(uint16_t x, uint16_t y, uint8_t action) {
+  // Executed when remoteDisplay.readRemoteCommand() detects a touch event.
+  // x & y represent the co-ords of the touch, action is either 0 (PRESSED) or 1 (RELEASED)
+  MouseX = x;
+  MouseY = y;
+  Btn = action;
+}
+
+void refreshDisplayCallback() {
+  lv_area_t area;
+  area.x1 = 0;
+  area.y1 = 0;
+  area.x2 = screenWidth;
+  area.y2 = screenHeight;
+  lv_obj_invalidate_area(lv_scr_act(), &area);  // Invalidate this region on the active screen
+}
 
 void setup_cursor() {
-
   // Create an input device for the mouse
-
+  static lv_indev_drv_t indev_drv;
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;  // Set input type to pointer
   indev_drv.read_cb = mouse_read_cb;       // Define your mouse read callback
   lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv);
-
   // Create and attach the mouse pointer
   create_mouse_pointer(mouse_indev);
 }
@@ -169,6 +185,9 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   tft.setAddrWindow(area->x1, area->y1, w, h);
   tft.writePixels((lgfx::rgb565_t *)&color_p->full, w * h);
   tft.endWrite();
+  if (remoteDisplay.sendRemoteScreen == true) {
+    remoteDisplay.sendData(area->x1, area->y1, area->x2, area->y2, (uint8_t *)&color_p->full);
+  }
   lv_disp_flush_ready(disp);
 }
 
